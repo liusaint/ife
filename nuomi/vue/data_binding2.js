@@ -6,6 +6,7 @@
 function Observer(data) {
 	this.data = data;
 	this.walk(data);
+	this.eventBus = new Event();
 }
 
 Observer.prototype = {
@@ -23,7 +24,7 @@ Observer.prototype = {
 		}
 	},
 	defineData: function(key, val) {
-
+		var self = this;
 		//其实这里是用了一个闭包来保存了key和val。
 		//每次调用这个函数就会重新定义原来的属性。原来的val值要从这个闭包中读取。		
 		Object.defineProperty(this.data, key, {
@@ -36,23 +37,26 @@ Observer.prototype = {
 			set: function(newVal) {
 				console.log('你设置了' + key + '，新的值为' + newVal);
 				if (val === newVal) return;
+
+				self.eventBus.emit(key,val,newVal);
 				val = newVal;
 				//第一个问题的解决。
 				if(typeof newVal === 'object'){
 					new Observer(newVal);
 				}
+
 				
 			}
 		})
 	},
 	//绑定事件，观测者模式
 	$watch:function(path,callBack){
-
-
+		this.eventBus.on(path,callBack);
 	},
-	runCallBacks:function(path){
-
-	}
+	//取消绑定事件。
+	$unWatch:function(path){
+		this.eventBus.off(path);
+	},
 };
 
 
@@ -79,7 +83,8 @@ Event.prototype = {
 	emit:function(key){
 		var callBackArr = this.eventObj[key]||[];
 		var slice = Array.prototype.slice;
-		var args = slice.call(arguments,1)
+		var args = slice.call(arguments,1);
+
 		var len = callBackArr.length;
 		var i = 0;
 		for (; i < len; i++) {
@@ -87,41 +92,45 @@ Event.prototype = {
 		}
 	}
 }
+//测试事件处理
+// var event = new Event();
+// event.on('aa',function(a) {	
+// 	console.log('aa1'+a);
+// });
+// event.on('aa',function(a) {	
+// 	console.log('aa2'+a);
+// });
 
-var event = new Event();
-event.on('aa',function(a) {	
-	console.log('aa1'+a);
-});
-event.on('bb',function(b) {	
-	console.log('bb1'+b);
-});
-event.on('aa',function(a) {	
-	console.log('aa2'+a);
-});
+// event.emit('aa','test1');
+// event.off('aa');
+// event.emit('aa','test1');
 
-event.emit('aa','test1');
-event.off('aa');
-event.emit('aa','test1');
+
 //测试
-var data = {
-	a:1,
-	b:2,
-	c:{
-		aa:11,
-		bb:22,
-		cc:{
-			aaa:111,
-			bbb:222,
-		}
-	}
-}
-//测试
-// new Observer(data);
-// data.c;
-// data.c = {
-// 	a:{
-// 		b:1
-// 	}
-// }
+// let app = new Observer({  
+//     age: 25
+// })
+// //测试回调。
+// app.$watch('age', function(oldVal, newVal){
+//     console.log(`我的年龄变了，原来是: ${oldVal}岁，现在是：${newVal}岁了`)
+// })
 
-// data.c.a.b
+// app.data.age = 20;
+// app.$unWatch('age');
+// app.data.age = 44;
+
+// // 测试点一
+// app.data.age = {a:1}
+// app.data.age.a = 2;
+
+
+
+
+
+
+
+
+
+
+
+//未解决的问题。　如何给  data.a.b这样的加watch。
