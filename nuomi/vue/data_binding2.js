@@ -38,7 +38,7 @@ Observer.prototype = {
 				console.log('你设置了' + key + '，新的值为' + newVal);
 				if (val === newVal) return;
 
-				self.eventBus.emit(key,val,newVal);
+				self.eventBus.trigger(key,val,newVal);
 				val = newVal;
 				//第一个问题的解决。
 				if(typeof newVal === 'object'){
@@ -80,7 +80,7 @@ Event.prototype = {
 		}
 	},
 	// 触发事件
-	emit:function(key){
+	trigger:function(key){
 		var callBackArr = this.eventObj[key]||[];
 		var slice = Array.prototype.slice;
 		var args = slice.call(arguments,1);
@@ -101,9 +101,9 @@ Event.prototype = {
 // 	console.log('aa2'+a);
 // });
 
-// event.emit('aa','test1');
+// event.trigger('aa','test1');
 // event.off('aa');
-// event.emit('aa','test1');
+// event.trigger('aa','test1');
 
 
 //测试

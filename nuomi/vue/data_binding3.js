@@ -21,6 +21,7 @@ Event.prototype = {
 			delete this.eventObj[key];
 		}
 	},
+	//触发事件
 	trigger: function(key) {
 		var callBackArr = this.eventObj[key] || [];
 		var slice = Array.prototype.slice;
@@ -31,16 +32,18 @@ Event.prototype = {
 		for (; i < len; i++) {
 			typeof callBackArr[i] === 'function' && callBackArr[i].apply('', args);
 		}
+		//向上传播
 		this.emit(key)
 	},
-	// 触发事件
+	// 传播事件
 	emit: function(key) {
-		//触发上一层。向上传播
+		
 		var keyArr = key.split('.');
 		var keyLen = keyArr.length;
 		if (keyLen < 2) return;
 		keyArr.pop();
 		var keyString = keyArr.join('.');
+		//触发上一层事件
 		this.trigger(keyString);
 	}
 }
@@ -131,9 +134,14 @@ let app = new Observer({
 app.$watch('name', function() {
 	console.log(`名字修改了`);
 })
+app.$watch('name', function() {
+	console.log(`名字修改了1`);
+})
 app.$watch('name.nameObj', function() {
 	console.log(`name.nameObj名字修改了`);
 })
 // app.data.name.name1 = 1;
-app.data.name.nameObj.name11 = 2;
-app.data.name.nameObj.name22 = 2;
+// app.data.name.nameObj.name11 = 2;
+// app.data.name.nameObj.name22 = 2;
+app.data.name.name1 = '3'
+app.data.name.name1 = '4'
