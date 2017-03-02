@@ -1,8 +1,7 @@
-// 请实现这样的一个 Observer，要求如下：
+// 任务二
+// 1.如果传入的是比较深的对象怎么办？如何维持它的响应。
+// 2.如何传入回调事件。
 
-// 传入参数只考虑对象，不考虑数组。
-// new Observer返回一个对象，其 data 属性要能够访问到传递进去的对象。
-// 通过 data 访问属性和设置属性的时候，均能打印出右侧对应的信息。
 
 function Observer(data) {
 	this.data = data;
@@ -37,8 +36,16 @@ Observer.prototype = {
 				console.log('你设置了' + key + '，新的值为' + newVal);
 				if (val === newVal) return;
 				val = newVal;
+				//第一个问题的解决。
+				if(typeof newVal === 'object'){
+					new Observer(newVal);
+				}
+				
 			}
 		})
+	},
+	$watch:function(path,callBack){
+
 	}
 };
 
@@ -64,3 +71,13 @@ var data = {
 //删除是不会检测到的。
 // delete data.a;
 // data.a;
+
+new Observer(data);
+data.c;
+data.c = {
+	a:{
+		b:1
+	}
+}
+
+data.c.a.b
